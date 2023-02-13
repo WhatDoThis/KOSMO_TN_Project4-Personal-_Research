@@ -58,6 +58,7 @@ img_y = [0]
 
 # 그래프 그리는 메소드들
 def pltApply(m1,m2,x,y,c,str,z,z2):
+    indx = list(); indy = list()
     ax = plt.subplot2grid((3, 4), (m1, m2), colspan=2)
     sc = plt.scatter(x, y, color=c)
     plt.plot(x, y, lw=0.7, color=c)
@@ -68,6 +69,8 @@ def pltApply(m1,m2,x,y,c,str,z,z2):
     plt.tick_params(axis='x', pad=6)
     plt.grid(ls='--', lw=0.5)
     for i in range(len(x)):
+        indx.append({x[i]})
+        indy.append({y[i]})
         if y[i] == y.max():
             result_A_li.append(y.max()) # 결과1용 데이터 뽑기
             result_V_li.append(x[i]) # 결과1용 데이터 뽑기
@@ -81,9 +84,13 @@ def pltApply(m1,m2,x,y,c,str,z,z2):
                     arrowprops=dict(arrowstyle="->"))
     annot.set_visible(False)
 
-    def update_annot(xdata, ydata):
-        annot.xy = (xdata,ydata)
-        text = '%.1F' %xdata, '%.1f' %ydata
+    def update_annot(ind):
+        pos = sc.get_offsets()[ind["ind"][0]]
+        ind_v = list(map(int,ind["ind"]))
+        indx_v = indx[ind_v[0]]
+        indy_v = indy[ind_v[0]]
+        annot.xy = pos
+        text = '{}, {}'.format(indx_v, indy_v)
         annot.set_text(text)
 
     def hover(event):
@@ -91,7 +98,7 @@ def pltApply(m1,m2,x,y,c,str,z,z2):
         if event.inaxes == ax:
             cont, ind = sc.contains(event)
             if cont:
-                update_annot(event.xdata, event.ydata)
+                update_annot(ind)
                 annot.set_visible(True)
                 fig.canvas.draw_idle()
             else:
